@@ -39,13 +39,13 @@
 #include "display_utils.h"
 #include "renderer.h"
 #ifndef USE_HTTP
-  #include <WiFiClientSecure.h>
+#include <WiFiClientSecure.h>
 #endif
 
 #ifdef USE_HTTP
-  static const uint16_t OWM_PORT = 80;
+static const uint16_t OWM_PORT = 80;
 #else
-  static const uint16_t OWM_PORT = 443;
+static const uint16_t OWM_PORT = 443;
 #endif
 
 /* Power-on and connect WiFi.
@@ -100,7 +100,7 @@ void killWiFi()
 bool printLocalTime(tm *timeInfo)
 {
   int attempts = 0;
-  while (!getLocalTime(timeInfo) && attempts++ < 3)
+  while (!getLocalTime(timeInfo, 30000) && attempts++ < 5)
   {
     Serial.println("Failed to obtain time");
     return false;
@@ -133,23 +133,18 @@ bool setupTime(tm *timeInfo)
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r)
+int getOWMonecall(WiFiClient &client, owm_resp_onecall_t &r)
 #else
-  int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r)
+int getOWMonecall(WiFiClientSecure &client, owm_resp_onecall_t &r)
 #endif
 {
   int attempts = 0;
   bool rxSuccess = false;
   DeserializationError jsonErr = {};
-  String uri = "/data/" + OWM_ONECALL_VERSION
-               + "/onecall?lat=" + LAT + "&lon=" + LON + "&lang=" + OWM_LANG
-               + "&units=standard&exclude=minutely&appid=" + OWM_APIKEY;
+  String uri = "/data/" + OWM_ONECALL_VERSION + "/onecall?lat=" + LAT + "&lon=" + LON + "&lang=" + OWM_LANG + "&units=standard&exclude=minutely&appid=" + OWM_APIKEY;
   // This string is printed to terminal to help with debugging. The API key is
   // censored to reduce the risk of users exposing their key.
-  String sanitizedUri = OWM_ENDPOINT
-               + "/data/" + OWM_ONECALL_VERSION
-               + "/onecall?lat=" + LAT + "&lon=" + LON + "&lang=" + OWM_LANG
-               + "&units=standard&exclude=minutely&appid={API key}";
+  String sanitizedUri = OWM_ENDPOINT + "/data/" + OWM_ONECALL_VERSION + "/onecall?lat=" + LAT + "&lon=" + LON + "&lang=" + OWM_LANG + "&units=standard&exclude=minutely&appid={API key}";
 
   Serial.println("Attempting HTTP Request: " + sanitizedUri);
   int httpResponse = 0;
@@ -171,8 +166,7 @@ bool setupTime(tm *timeInfo)
     }
     client.stop();
     http.end();
-    Serial.println("  " + String(httpResponse, DEC) + " "
-                   + getHttpResponsePhrase(httpResponse));
+    Serial.println("  " + String(httpResponse, DEC) + " " + getHttpResponsePhrase(httpResponse));
     ++attempts;
   }
 
@@ -186,9 +180,9 @@ bool setupTime(tm *timeInfo)
  * Returns the HTTP Status Code.
  */
 #ifdef USE_HTTP
-  int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r)
+int getOWMairpollution(WiFiClient &client, owm_resp_air_pollution_t &r)
 #else
-  int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r)
+int getOWMairpollution(WiFiClientSecure &client, owm_resp_air_pollution_t &r)
 #endif
 {
   int attempts = 0;
@@ -205,15 +199,11 @@ bool setupTime(tm *timeInfo)
   char startStr[22];
   sprintf(endStr, "%lld", end);
   sprintf(startStr, "%lld", start);
-  String uri = "/data/2.5/air_pollution/history?lat=" + LAT + "&lon=" + LON
-               + "&start=" + startStr + "&end=" + endStr
-               + "&appid=" + OWM_APIKEY;
+  String uri = "/data/2.5/air_pollution/history?lat=" + LAT + "&lon=" + LON + "&start=" + startStr + "&end=" + endStr + "&appid=" + OWM_APIKEY;
   // This string is printed to terminal to help with debugging. The API key is
   // censored to reduce the risk of users exposing their key.
   String sanitizedUri = OWM_ENDPOINT +
-               "/data/2.5/air_pollution/history?lat=" + LAT + "&lon=" + LON
-               + "&start=" + startStr + "&end=" + endStr
-               + "&appid={API key}";
+                        "/data/2.5/air_pollution/history?lat=" + LAT + "&lon=" + LON + "&start=" + startStr + "&end=" + endStr + "&appid={API key}";
 
   Serial.println("Attempting HTTP Request: " + sanitizedUri);
   int httpResponse = 0;
@@ -234,11 +224,9 @@ bool setupTime(tm *timeInfo)
     }
     client.stop();
     http.end();
-    Serial.println("  " + String(httpResponse, DEC) + " "
-                   + getHttpResponsePhrase(httpResponse));
+    Serial.println("  " + String(httpResponse, DEC) + " " + getHttpResponsePhrase(httpResponse));
     ++attempts;
   }
 
   return httpResponse;
 } // getOWMairpollution
-

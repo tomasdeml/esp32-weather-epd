@@ -20,27 +20,28 @@
 
 // PINS
 // ADC pin used to measure battery voltage
-const uint8_t PIN_BAT_ADC  = A2;
+const uint8_t PIN_BAT_ADC = 13;
 // Pins for Waveshare e-paper Driver Board
-const uint8_t PIN_EPD_BUSY = 13;
-const uint8_t PIN_EPD_CS   =  2;
-const uint8_t PIN_EPD_RST  = 21;
-const uint8_t PIN_EPD_DC   = 22;
-const uint8_t PIN_EPD_SCK  = 18;
+const uint8_t PIN_EPD_BUSY = 4;
+const uint8_t PIN_EPD_RST = 16;
+const uint8_t PIN_EPD_DC = 17;
+const uint8_t PIN_EPD_CS = 2;
+const uint8_t PIN_EPD_SCK = 18;
 const uint8_t PIN_EPD_MISO = 19; // 19 Master-In Slave-Out not used, as no data from display
 const uint8_t PIN_EPD_MOSI = 23;
+
 // I2C Pins used for BME280
 const uint8_t PIN_BME_SDA = 17;
 const uint8_t PIN_BME_SCL = 16;
 const uint8_t BME_ADDRESS = 0x76; // if sensor does not work, try 0x77
 
 // WIFI CREDENTIALS
-const char *WIFI_SSID     = "ssid";
-const char *WIFI_PASSWORD = "password";
+const char *WIFI_SSID = "";     // DO NOT PUSH !!! !!! !!! !!!
+const char *WIFI_PASSWORD = ""; // DO NOT PUSH !!! !!! !!! !!!
 
 // OPENWEATHERMAP API
 // OpenWeatherMap API key, https://openweathermap.org/
-const String OWM_APIKEY   = "abcdefghijklmnopqrstuvwxyz012345";
+const String OWM_APIKEY = ""; // DO NOT PUSH !!! !!! !!!
 const String OWM_ENDPOINT = "api.openweathermap.org";
 // OpenWeatherMap One Call 2.5 API is deprecated for all new free users
 // (accounts created after Summer 2022).
@@ -69,17 +70,17 @@ const String CITY_STRING = "New York, New York";
 // TIME
 // For list of time zones see
 // https://github.com/nayarsystems/posix_tz_db/blob/master/zones.csv
-const char *TIMEZONE = "EST5EDT,M3.2.0,M11.1.0";
+const char *TIMEZONE = "CET-1CEST,M3.5.0,M10.5.0/3";
 // Time format used when displaying sunrise/set times. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
 // const char *TIME_FORMAT = "%l:%M%P"; // 12-hour ex: 1:23am  11:00pm
-const char *TIME_FORMAT = "%H:%M";   // 24-hour ex: 01:23   23:00
+const char *TIME_FORMAT = "%H:%M"; // 24-hour ex: 01:23   23:00
 // Time format used when displaying axis labels. (Max 11 characters)
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
 // const char *HOUR_FORMAT = "%l%P"; // 12-hour ex: 1am  11pm
-const char *HOUR_FORMAT = "%H";      // 24-hour ex: 01   23
+const char *HOUR_FORMAT = "%H"; // 24-hour ex: 01   23
 // Date format used when displaying date in top-right corner. For more
 // For more information about formatting see
 // https://man7.org/linux/man-pages/man3/strftime.3.html
@@ -100,7 +101,7 @@ const char *NTP_SERVER_2 = "time.nist.gov";
 const long SLEEP_DURATION = 30;
 // If BED_TIME == WAKE_TIME, then this battery saving feature will be disabled.
 // (range: 0-23)
-const int BED_TIME  = 00; // Last update at 00:00 (midnight) until WAKE_TIME.
+const int BED_TIME = 00;  // Last update at 00:00 (midnight) until WAKE_TIME.
 const int WAKE_TIME = 06; // Hour of first update after BED_TIME, 06:00.
 
 // HOURLY OUTLOOK GRAPH
@@ -115,11 +116,11 @@ const int HOURLY_GRAPH_MAX = 24;
 // minutes). Once the battery voltage has fallen to CRIT_LOW_BATTERY_VOLTAGE,
 // the esp32 will hibernate and a manual press of the reset (RST) button to
 // begin operating again.
-const float BATTERY_WARN_VOLTAGE     = 3.40; // (volts) ~ 10%
-const float LOW_BATTERY_VOLTAGE      = 3.20; // (volts)
-const float VERY_LOW_BATTERY_VOLTAGE = 3.10; // (volts)
-const float CRIT_LOW_BATTERY_VOLTAGE = 3.00; // (volts)
-const unsigned long LOW_BATTERY_SLEEP_INTERVAL      = 30;  // (minutes)
+const float BATTERY_WARN_VOLTAGE = 3.40;                   // (volts) ~ 10%
+const float LOW_BATTERY_VOLTAGE = -1;                      // (volts)
+const float VERY_LOW_BATTERY_VOLTAGE = 3.10;               // (volts)
+const float CRIT_LOW_BATTERY_VOLTAGE = 3.00;               // (volts)
+const unsigned long LOW_BATTERY_SLEEP_INTERVAL = 30;       // (minutes)
 const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 120; // (minutes)
 
 // See config.h for the below options
@@ -130,4 +131,3 @@ const unsigned long VERY_LOW_BATTERY_SLEEP_INTERVAL = 120; // (minutes)
 // WIND ICON PRECISION
 // FONTS
 // DISABLE ALERTS
-
