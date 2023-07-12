@@ -119,8 +119,8 @@
 //   The current certificate for api.openweathermap.org is valid until
 //   2030-12-31 23:59:59.
 // (uncomment exactly one)
-// #define USE_HTTP
-#define USE_HTTPS_NO_CERT_VERIF
+#define USE_HTTP
+// #define USE_HTTPS_NO_CERT_VERIF
 // #define USE_HTTPS_WITH_CERT_VERIF
 
 // WIND ICON PRECISION
