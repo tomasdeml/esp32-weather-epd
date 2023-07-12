@@ -122,11 +122,11 @@
 #define MAX_HEIGHT(EPD) (EPD::HEIGHT <= (MAX_DISPLAY_BUFFER_SIZE) / (EPD::WIDTH / 2) ? EPD::HEIGHT : (MAX_DISPLAY_BUFFER_SIZE) / (EPD::WIDTH / 2))
 #endif
 // adapt the constructor parameters to your wiring
-GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=D8*/ EPD_CS, /*DC=D3*/ 0, /*RST=D4*/ 2, /*BUSY=D2*/ 4));
+GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=D8*/ EPD_CS, /*DC=D3*/ 0, /*RST=D4*/ 2, /*BUSY=D2*/ 4));
 // mapping of Waveshare e-Paper ESP8266 Driver Board, new version
-// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=15*/ EPD_CS, /*DC=4*/ 4, /*RST=2*/ 2, /*BUSY=5*/ 5));
+// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=15*/ EPD_CS, /*DC=4*/ 4, /*RST=2*/ 2, /*BUSY=5*/ 5));
 // mapping of Waveshare e-Paper ESP8266 Driver Board, old version
-// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=15*/ EPD_CS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16));
+// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=15*/ EPD_CS, /*DC=4*/ 4, /*RST=5*/ 5, /*BUSY=16*/ 16));
 #endif
 
 #if defined(ESP32)
@@ -141,24 +141,24 @@ GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> displ
 // adapt the constructor parameters to your wiring
 #if !IS_GxEPD2_1248(GxEPD2_DRIVER_CLASS) && !IS_GxEPD2_1248c(GxEPD2_DRIVER_CLASS)
 #if defined(ARDUINO_LOLIN_D32_PRO)
-GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/0, /*RST=*/2, /*BUSY=*/15)); // my LOLIN_D32_PRO proto board
+GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/0, /*RST=*/2, /*BUSY=*/15)); // my LOLIN_D32_PRO proto board
 #else
-GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(
+GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(
     GxEPD2_DRIVER_CLASS(PIN_EPD_CS,
                         PIN_EPD_DC,
                         PIN_EPD_RST,
                         PIN_EPD_BUSY));
-// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ 5, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4)); // LILYGO_T5_V2.4.1
-// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 19, /*RST=*/ 4, /*BUSY=*/ 34)); // LILYGO® TTGO T5 2.66
-// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 2, /*RST=*/ 0, /*BUSY=*/ 4)); // e.g. TTGO T8 ESP32-WROVER
+// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=5*/ 5, /*DC=*/ 17, /*RST=*/ 16, /*BUSY=*/ 4)); // LILYGO_T5_V2.4.1
+// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 19, /*RST=*/ 4, /*BUSY=*/ 34)); // LILYGO® TTGO T5 2.66
+// GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*CS=5*/ EPD_CS, /*DC=*/ 2, /*RST=*/ 0, /*BUSY=*/ 4)); // e.g. TTGO T8 ESP32-WROVER
 #endif
 #else // GxEPD2_1248 or GxEPD2_1248c
 // Waveshare 12.48 b/w or b/w/r SPI display board and frame or Good Display 12.48 b/w panel GDEW1248T3 or b/w/r panel GDEY1248Z51
 // general constructor for use with all parameters, e.g. for Waveshare ESP32 driver board mounted on connection board
-GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> display(GxEPD2_DRIVER_CLASS(/*sck=*/13, /*miso=*/12, /*mosi=*/14,
-                                                                                                       /*cs_m1=*/23, /*cs_s1=*/22, /*cs_m2=*/16, /*cs_s2=*/19,
-                                                                                                       /*dc1=*/25, /*dc2=*/17, /*rst1=*/33, /*rst2=*/5,
-                                                                                                       /*busy_m1=*/32, /*busy_s1=*/26, /*busy_m2=*/18, /*busy_s2=*/4));
+GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpDisplay(GxEPD2_DRIVER_CLASS(/*sck=*/13, /*miso=*/12, /*mosi=*/14,
+                                                                                                           /*cs_m1=*/23, /*cs_s1=*/22, /*cs_m2=*/16, /*cs_s2=*/19,
+                                                                                                           /*dc1=*/25, /*dc2=*/17, /*rst1=*/33, /*rst2=*/5,
+                                                                                                           /*busy_m1=*/32, /*busy_s1=*/26, /*busy_m2=*/18, /*busy_s2=*/4));
 #endif
 #endif
 
@@ -189,15 +189,18 @@ void showBitmapFrom_HTTP_Buffered(const char *host, const char *path, const char
 // void showBitmapFrom_HTTPS_Buffered(const char *host, const char *path, const char *filename, const char *fingerprint, int16_t x, int16_t y, bool with_color = true,
 //                                    const char *certificate = certificate_rawcontent);
 
+void drawBitmapsBuffered_other();
+void drawBitmaps_other();
+
 void setupHttpRenderer()
 {
   // Serial.begin(115200);
   Serial.println();
   Serial.println("GxEPD2_WiFi_Example");
 
-  // display.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
+  // httpDisplay.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
 
-  // display.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
+  // httpDisplay.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
 
 #ifdef REMAP_SPI_FOR_WAVESHARE_ESP32_DRIVER_BOARD
   SPI.end(); // release standard SPI pins, e.g. SCK(18), MISO(19), MOSI(23), SS(5)
@@ -246,7 +249,7 @@ void setupHttpRenderer()
 
   // setClock();
 
-  if ((display.epd2.panel == GxEPD2::GDEW0154Z04) || (display.epd2.panel == GxEPD2::ACeP565) || (display.epd2.panel == GxEPD2::GDEY073D46) || false)
+  if ((httpDisplay.epd2.panel == GxEPD2::GDEW0154Z04) || (httpDisplay.epd2.panel == GxEPD2::ACeP565) || (httpDisplay.epd2.panel == GxEPD2::GDEY073D46) || false)
   {
     Serial.println("Drawing buffered");
     // drawBitmapsBuffered_200x200();
@@ -266,14 +269,112 @@ void setupHttpRenderer()
   Serial.println("GxEPD2_WiFi_Example done");
 }
 
-void loop(void)
+uint16_t read16(WiFiClient &client)
 {
+  // BMP data is stored little-endian, same as Arduino.
+  uint16_t result;
+  ((uint8_t *)&result)[0] = client.read(); // LSB
+  ((uint8_t *)&result)[1] = client.read(); // MSB
+  return result;
+}
+
+uint32_t read32(WiFiClient &client)
+{
+  // BMP data is stored little-endian, same as Arduino.
+  uint32_t result;
+  ((uint8_t *)&result)[0] = client.read(); // LSB
+  ((uint8_t *)&result)[1] = client.read();
+  ((uint8_t *)&result)[2] = client.read();
+  ((uint8_t *)&result)[3] = client.read(); // MSB
+  return result;
+}
+
+#if USE_BearSSL
+
+uint32_t skip(BearSSL::WiFiClientSecure &client, int32_t bytes)
+{
+  int32_t remain = bytes;
+  uint32_t start = millis();
+  while ((client.connected() || client.available()) && (remain > 0))
+  {
+    if (client.available())
+    {
+      client.read();
+      remain--;
+    }
+    else
+      delay(1);
+    if (millis() - start > 2000)
+      break; // don't hang forever
+  }
+  return bytes - remain;
+}
+
+uint32_t read8n(BearSSL::WiFiClientSecure &client, uint8_t *buffer, int32_t bytes)
+{
+  int32_t remain = bytes;
+  uint32_t start = millis();
+  while ((client.connected() || client.available()) && (remain > 0))
+  {
+    if (client.available())
+    {
+      int16_t v = client.read();
+      *buffer++ = uint8_t(v);
+      remain--;
+    }
+    else
+      delay(1);
+    if (millis() - start > 2000)
+      break; // don't hang forever
+  }
+  return bytes - remain;
+}
+
+#endif
+
+uint32_t skip(WiFiClient &client, int32_t bytes)
+{
+  int32_t remain = bytes;
+  uint32_t start = millis();
+  while ((client.connected() || client.available()) && (remain > 0))
+  {
+    if (client.available())
+    {
+      client.read();
+      remain--;
+    }
+    else
+      delay(1);
+    if (millis() - start > 2000)
+      break; // don't hang forever
+  }
+  return bytes - remain;
+}
+
+uint32_t read8n(WiFiClient &client, uint8_t *buffer, int32_t bytes)
+{
+  int32_t remain = bytes;
+  uint32_t start = millis();
+  while ((client.connected() || client.available()) && (remain > 0))
+  {
+    if (client.available())
+    {
+      int16_t v = client.read();
+      *buffer++ = uint8_t(v);
+      remain--;
+    }
+    else
+      delay(1);
+    if (millis() - start > 2000)
+      break; // don't hang forever
+  }
+  return bytes - remain;
 }
 
 void drawBitmaps_200x200()
 {
-  int16_t x = (display.width() - 200) / 2;
-  int16_t y = (display.height() - 200) / 2;
+  // int16_t x = (httpDisplay.width() - 200) / 2;
+  // int16_t y = (httpDisplay.height() - 200) / 2;
   // showBitmapFrom_HTTPS(host_rawcontent, path_rawcontent, "logo200x200.bmp", fp_rawcontent, x, y);
   // delay(2000);
   // showBitmapFrom_HTTPS(host_rawcontent, path_rawcontent, "first200x200.bmp", fp_rawcontent, x, y);
@@ -296,8 +397,8 @@ void drawBitmaps_200x200()
 
 void drawBitmaps_other()
 {
-  int16_t w2 = display.width() / 2;
-  int16_t h2 = display.height() / 2;
+  int16_t w2 = httpDisplay.width() / 2;
+  int16_t h2 = httpDisplay.height() / 2;
   showBitmapFrom_HTTP("www.packescape.com", "/img/assets/", "IniciMenusTV2.bmp", w2 - 200, h2 - 150, false);
   delay(2000);
   showBitmapFrom_HTTP("www.squix.org", "/blog/wunderground/", "chanceflurries.bmp", w2 - 50, h2 - 50, false);
@@ -328,8 +429,8 @@ void drawBitmaps_other()
 
 void drawBitmaps_test()
 {
-  int16_t w2 = display.width() / 2;
-  int16_t h2 = display.height() / 2;
+  // int16_t w2 = httpDisplay.width() / 2;
+  // int16_t h2 = httpDisplay.height() / 2;
   // showBitmapFrom_HTTPS(host_rawcontent, path_prenticedavid, "betty_4.bmp", fp_rawcontent, w2 - 102, h2 - 126);
   // delay(2000);
   // showBitmapFrom_HTTPS(host_rawcontent, path_rawcontent, "output5.bmp", fp_rawcontent, 0, 0);
@@ -354,8 +455,8 @@ void drawBitmaps_test()
 
 void drawBitmapsBuffered_200x200()
 {
-  int16_t x = (display.width() - 200) / 2;
-  int16_t y = (display.height() - 200) / 2;
+  // int16_t x = (httpDisplay.width() - 200) / 2;
+  // int16_t y = (httpDisplay.height() - 200) / 2;
   // showBitmapFrom_HTTPS_Buffered(host_rawcontent, path_rawcontent, "logo200x200.bmp", fp_rawcontent, x, y);
   // delay(2000);
   // showBitmapFrom_HTTPS_Buffered(host_rawcontent, path_rawcontent, "first200x200.bmp", fp_rawcontent, x, y);
@@ -378,8 +479,8 @@ void drawBitmapsBuffered_200x200()
 
 void drawBitmapsBuffered_other()
 {
-  int16_t w2 = display.width() / 2;
-  int16_t h2 = display.height() / 2;
+  int16_t w2 = httpDisplay.width() / 2;
+  int16_t h2 = httpDisplay.height() / 2;
   showBitmapFrom_HTTP_Buffered("www.squix.org", "/blog/wunderground/", "chanceflurries.bmp", w2 - 50, h2 - 50, false);
   delay(2000);
   // showBitmapFrom_HTTPS_Buffered(host_rawcontent, path_prenticedavid, "betty_1.bmp", fp_rawcontent, w2 - 100, h2 - 160);
@@ -408,7 +509,7 @@ void drawBitmapsBuffered_other()
 
 void drawBitmapsBuffered_7C()
 {
-  if ((display.epd2.panel == GxEPD2::ACeP565) || (display.epd2.panel == GxEPD2::GDEY073D46))
+  if ((httpDisplay.epd2.panel == GxEPD2::ACeP565) || (httpDisplay.epd2.panel == GxEPD2::GDEY073D46))
   {
     // showBitmapFrom_HTTPS_Buffered(host_rawcontent, path_waveshare_c, "5in65f.bmp", fp_rawcontent, 0, 0);
     // delay(2000);
@@ -427,8 +528,8 @@ void drawBitmapsBuffered_7C()
 
 void drawBitmapsBuffered_test()
 {
-  int16_t w2 = display.width() / 2;
-  int16_t h2 = display.height() / 2;
+  // int16_t w2 = httpDisplay.width() / 2;
+  // int16_t h2 = httpDisplay.height() / 2;
   // showBitmapFrom_HTTPS_Buffered(host_rawcontent, path_prenticedavid, "betty_4.bmp", fp_rawcontent, w2 - 102, h2 - 126);
   // delay(2000);
 }
@@ -452,7 +553,7 @@ void showBitmapFrom_HTTP(const char *host, const char *path, const char *filenam
   bool valid = false; // valid format to be handled
   bool flip = true;   // bitmap is stored bottom-to-top
   uint32_t startTime = millis();
-  if ((x >= display.epd2.WIDTH) || (y >= display.epd2.HEIGHT))
+  if ((x >= httpDisplay.epd2.WIDTH) || (y >= httpDisplay.epd2.HEIGHT))
     return;
   Serial.println();
   Serial.print("downloading file \"");
@@ -532,10 +633,10 @@ void showBitmapFrom_HTTP(const char *host, const char *path, const char *filenam
       }
       uint16_t w = width;
       uint16_t h = height;
-      if ((x + w - 1) >= display.epd2.WIDTH)
-        w = display.epd2.WIDTH - x;
-      if ((y + h - 1) >= display.epd2.HEIGHT)
-        h = display.epd2.HEIGHT - y;
+      if ((x + w - 1) >= httpDisplay.epd2.WIDTH)
+        w = httpDisplay.epd2.WIDTH - x;
+      if ((y + h - 1) >= httpDisplay.epd2.HEIGHT)
+        h = httpDisplay.epd2.HEIGHT - y;
       if (w <= max_row_width) // handle with direct drawing
       {
         valid = true;
@@ -569,7 +670,7 @@ void showBitmapFrom_HTTP(const char *host, const char *path, const char *filenam
             color_palette_buffer[pn / 8] |= colored << pn % 8;
           }
         }
-        display.clearScreen();
+        httpDisplay.clearScreen();
         uint32_t rowPosition = flip ? imageOffset + (height - h) * rowSize : imageOffset;
         // Serial.print("skip "); Serial.println(rowPosition - bytes_read);
         bytes_read += skip(client, rowPosition - bytes_read);
@@ -690,12 +791,12 @@ void showBitmapFrom_HTTP(const char *host, const char *path, const char *filenam
             }
           } // end pixel
           int16_t yrow = y + (flip ? h - row - 1 : row);
-          display.writeImage(output_row_mono_buffer, output_row_color_buffer, x, yrow, w, 1);
+          httpDisplay.writeImage(output_row_mono_buffer, output_row_color_buffer, x, yrow, w, 1);
         } // end line
         Serial.print("downloaded in ");
         Serial.print(millis() - startTime);
         Serial.println(" ms");
-        display.refresh();
+        httpDisplay.refresh();
       }
       Serial.print("bytes read ");
       Serial.println(bytes_read);
@@ -714,11 +815,11 @@ void drawBitmapFrom_HTTP_ToBuffer(const char *host, const char *path, const char
   bool connection_ok = false;
   bool valid = false; // valid format to be handled
   bool flip = true;   // bitmap is stored bottom-to-top
-  bool has_multicolors = (display.epd2.panel == GxEPD2::ACeP565) || (display.epd2.panel == GxEPD2::GDEY073D46);
+  bool has_multicolors = (httpDisplay.epd2.panel == GxEPD2::ACeP565) || (httpDisplay.epd2.panel == GxEPD2::GDEY073D46);
   uint32_t startTime = millis();
-  if ((x >= display.width()) || (y >= display.height()))
+  if ((x >= httpDisplay.width()) || (y >= httpDisplay.height()))
     return;
-  display.fillScreen(GxEPD_WHITE);
+  httpDisplay.fillScreen(GxEPD_WHITE);
   Serial.print("connecting to ");
   Serial.println(host);
   if (!client.connect(host, httpPort))
@@ -793,10 +894,10 @@ void drawBitmapFrom_HTTP_ToBuffer(const char *host, const char *path, const char
       }
       uint16_t w = width;
       uint16_t h = height;
-      if ((x + w - 1) >= display.width())
-        w = display.width() - x;
-      if ((y + h - 1) >= display.height())
-        h = display.height() - y;
+      if ((x + w - 1) >= httpDisplay.width())
+        w = httpDisplay.width() - x;
+      if ((y + h - 1) >= httpDisplay.height())
+        h = httpDisplay.height() - y;
       // if (w <= max_row_width) // handle with direct drawing
       {
         valid = true;
@@ -952,7 +1053,7 @@ void drawBitmapFrom_HTTP_ToBuffer(const char *host, const char *path, const char
               color = GxEPD_BLACK;
             }
             uint16_t yrow = y + (flip ? h - row - 1 : row);
-            display.drawPixel(x + col, yrow, color);
+            httpDisplay.drawPixel(x + col, yrow, color);
           } // end pixel
         }   // end line
       }
@@ -976,12 +1077,12 @@ void showBitmapFrom_HTTP_Buffered(const char *host, const char *path, const char
   Serial.print("downloading file \"");
   Serial.print(filename);
   Serial.println("\"");
-  display.setFullWindow();
-  display.firstPage();
+  httpDisplay.setFullWindow();
+  httpDisplay.firstPage();
   do
   {
     drawBitmapFrom_HTTP_ToBuffer(host, path, filename, x, y, with_color);
-  } while (display.nextPage());
+  } while (httpDisplay.nextPage());
 }
 
 void showBitmapFrom_HTTPS_XXX(const char *host, const char *path, const char *filename, const char *fingerprint, int16_t x, int16_t y, bool with_color, const char *certificate)
@@ -997,7 +1098,7 @@ void showBitmapFrom_HTTPS_XXX(const char *host, const char *path, const char *fi
   bool valid = false; // valid format to be handled
   bool flip = true;   // bitmap is stored bottom-to-top
   uint32_t startTime = millis();
-  if ((x >= display.epd2.WIDTH) || (y >= display.epd2.HEIGHT))
+  if ((x >= httpDisplay.epd2.WIDTH) || (y >= httpDisplay.epd2.HEIGHT))
     return;
   Serial.println();
   Serial.print("downloading file \"");
@@ -1102,10 +1203,10 @@ void showBitmapFrom_HTTPS_XXX(const char *host, const char *path, const char *fi
       }
       uint16_t w = width;
       uint16_t h = height;
-      if ((x + w - 1) >= display.epd2.WIDTH)
-        w = display.epd2.WIDTH - x;
-      if ((y + h - 1) >= display.epd2.HEIGHT)
-        h = display.epd2.HEIGHT - y;
+      if ((x + w - 1) >= httpDisplay.epd2.WIDTH)
+        w = httpDisplay.epd2.WIDTH - x;
+      if ((y + h - 1) >= httpDisplay.epd2.HEIGHT)
+        h = httpDisplay.epd2.HEIGHT - y;
       if (w <= max_row_width) // handle with direct drawing
       {
         valid = true;
@@ -1139,7 +1240,7 @@ void showBitmapFrom_HTTPS_XXX(const char *host, const char *path, const char *fi
             color_palette_buffer[pn / 8] |= colored << pn % 8;
           }
         }
-        display.clearScreen();
+        httpDisplay.clearScreen();
         uint32_t rowPosition = flip ? imageOffset + (height - h) * rowSize : imageOffset;
         // Serial.print("skip "); Serial.println(rowPosition - bytes_read);
         bytes_read += skip(client, rowPosition - bytes_read);
@@ -1261,14 +1362,14 @@ void showBitmapFrom_HTTPS_XXX(const char *host, const char *path, const char *fi
             }
           } // end pixel
           int16_t yrow = y + (flip ? h - row - 1 : row);
-          display.writeImage(output_row_mono_buffer, output_row_color_buffer, x, yrow, w, 1);
+          httpDisplay.writeImage(output_row_mono_buffer, output_row_color_buffer, x, yrow, w, 1);
         } // end line
         Serial.print("downloaded in ");
         Serial.print(millis() - startTime);
         Serial.println(" ms");
         Serial.print("bytes read ");
         Serial.println(bytes_read);
-        display.refresh();
+        httpDisplay.refresh();
       }
     }
   }
@@ -1291,11 +1392,11 @@ void drawBitmapFrom_HTTPS_ToBuffer(const char *host, const char *path, const cha
   bool connection_ok = false;
   bool valid = false; // valid format to be handled
   bool flip = true;   // bitmap is stored bottom-to-top
-  bool has_multicolors = (display.epd2.panel == GxEPD2::ACeP565) || (display.epd2.panel == GxEPD2::GDEY073D46);
+  bool has_multicolors = (httpDisplay.epd2.panel == GxEPD2::ACeP565) || (httpDisplay.epd2.panel == GxEPD2::GDEY073D46);
   uint32_t startTime = millis();
-  if ((x >= display.width()) || (y >= display.height()))
+  if ((x >= httpDisplay.width()) || (y >= httpDisplay.height()))
     return;
-  display.fillScreen(GxEPD_WHITE);
+  httpDisplay.fillScreen(GxEPD_WHITE);
   Serial.print("connecting to ");
   Serial.println(host);
 #if defined(ESP8266)
@@ -1397,10 +1498,10 @@ void drawBitmapFrom_HTTPS_ToBuffer(const char *host, const char *path, const cha
       }
       uint16_t w = width;
       uint16_t h = height;
-      if ((x + w - 1) >= display.width())
-        w = display.width() - x;
-      if ((y + h - 1) >= display.height())
-        h = display.height() - y;
+      if ((x + w - 1) >= httpDisplay.width())
+        w = httpDisplay.width() - x;
+      if ((y + h - 1) >= httpDisplay.height())
+        h = httpDisplay.height() - y;
       // if (w <= max_row_width) // handle with direct drawing
       {
         valid = true;
@@ -1556,7 +1657,7 @@ void drawBitmapFrom_HTTPS_ToBuffer(const char *host, const char *path, const cha
               color = GxEPD_BLACK;
             }
             uint16_t yrow = y + (flip ? h - row - 1 : row);
-            display.drawPixel(x + col, yrow, color);
+            httpDisplay.drawPixel(x + col, yrow, color);
           } // end pixel
         }   // end line
       }
@@ -1580,114 +1681,12 @@ void showBitmapFrom_HTTPS_Buffered(const char *host, const char *path, const cha
   Serial.print("downloading file \"");
   Serial.print(filename);
   Serial.println("\"");
-  display.setFullWindow();
-  display.firstPage();
+  httpDisplay.setFullWindow();
+  httpDisplay.firstPage();
   do
   {
     drawBitmapFrom_HTTPS_ToBuffer(host, path, filename, fingerprint, x, y, with_color, certificate);
-  } while (display.nextPage());
-}
-
-uint16_t read16(WiFiClient &client)
-{
-  // BMP data is stored little-endian, same as Arduino.
-  uint16_t result;
-  ((uint8_t *)&result)[0] = client.read(); // LSB
-  ((uint8_t *)&result)[1] = client.read(); // MSB
-  return result;
-}
-
-uint32_t read32(WiFiClient &client)
-{
-  // BMP data is stored little-endian, same as Arduino.
-  uint32_t result;
-  ((uint8_t *)&result)[0] = client.read(); // LSB
-  ((uint8_t *)&result)[1] = client.read();
-  ((uint8_t *)&result)[2] = client.read();
-  ((uint8_t *)&result)[3] = client.read(); // MSB
-  return result;
-}
-
-#if USE_BearSSL
-
-uint32_t skip(BearSSL::WiFiClientSecure &client, int32_t bytes)
-{
-  int32_t remain = bytes;
-  uint32_t start = millis();
-  while ((client.connected() || client.available()) && (remain > 0))
-  {
-    if (client.available())
-    {
-      client.read();
-      remain--;
-    }
-    else
-      delay(1);
-    if (millis() - start > 2000)
-      break; // don't hang forever
-  }
-  return bytes - remain;
-}
-
-uint32_t read8n(BearSSL::WiFiClientSecure &client, uint8_t *buffer, int32_t bytes)
-{
-  int32_t remain = bytes;
-  uint32_t start = millis();
-  while ((client.connected() || client.available()) && (remain > 0))
-  {
-    if (client.available())
-    {
-      int16_t v = client.read();
-      *buffer++ = uint8_t(v);
-      remain--;
-    }
-    else
-      delay(1);
-    if (millis() - start > 2000)
-      break; // don't hang forever
-  }
-  return bytes - remain;
-}
-
-#endif
-
-uint32_t skip(WiFiClient &client, int32_t bytes)
-{
-  int32_t remain = bytes;
-  uint32_t start = millis();
-  while ((client.connected() || client.available()) && (remain > 0))
-  {
-    if (client.available())
-    {
-      client.read();
-      remain--;
-    }
-    else
-      delay(1);
-    if (millis() - start > 2000)
-      break; // don't hang forever
-  }
-  return bytes - remain;
-}
-
-uint32_t read8n(WiFiClient &client, uint8_t *buffer, int32_t bytes)
-{
-  int32_t remain = bytes;
-  uint32_t start = millis();
-  while ((client.connected() || client.available()) && (remain > 0))
-  {
-    if (client.available())
-    {
-      int16_t v = client.read();
-      *buffer++ = uint8_t(v);
-      remain--;
-    }
-    else
-      delay(1);
-    if (millis() - start > 2000)
-      break; // don't hang forever
-  }
-  return bytes - remain;
+  } while (httpDisplay.nextPage());
 }
 
 // Set time via NTP, as required for x.509 validation
