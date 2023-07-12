@@ -194,60 +194,14 @@ void drawBitmaps_other();
 
 void setupHttpRenderer()
 {
-  // Serial.begin(115200);
   Serial.println();
   Serial.println("GxEPD2_WiFi_Example");
 
-  // httpDisplay.init(115200); // default 10ms reset pulse, e.g. for bare panels with DESPI-C02
-
-  // httpDisplay.init(115200, true, 2, false); // USE THIS for Waveshare boards with "clever" reset circuit, 2ms reset pulse
-
-#ifdef REMAP_SPI_FOR_WAVESHARE_ESP32_DRIVER_BOARD
-  SPI.end(); // release standard SPI pins, e.g. SCK(18), MISO(19), MOSI(23), SS(5)
-  // SPI: void begin(int8_t sck=-1, int8_t miso=-1, int8_t mosi=-1, int8_t ss=-1);
-  SPI.begin(13, 12, 14, 15); // map and init SPI pins SCK(13), MISO(12), MOSI(14), SS(15)
-#endif
-
-#ifdef RE_INIT_NEEDED
-  WiFi.persistent(true);
-  WiFi.mode(WIFI_STA); // switch off AP
-  WiFi.setAutoConnect(true);
-  WiFi.setAutoReconnect(true);
-  WiFi.disconnect();
-#endif
-
-  // if (!WiFi.getAutoConnect() || (WiFi.getMode() != WIFI_STA) || ((WiFi.SSID() != ssid) && String(ssid) != "........"))
-  // {
-  //   Serial.println();
-  //   Serial.print("WiFi.getAutoConnect() = ");
-  //   Serial.println(WiFi.getAutoConnect());
-  //   Serial.print("WiFi.SSID() = ");
-  //   Serial.println(WiFi.SSID());
-  //   WiFi.mode(WIFI_STA); // switch off AP
-  //   Serial.print("Connecting to ");
-  //   Serial.println(ssid);
-  //   WiFi.begin(ssid, password);
-  // }
-  // int ConnectTimeout = 30; // 15 seconds
-  // while (WiFi.status() != WL_CONNECTED)
-  // {
-  //   delay(500);
-  //   Serial.print(".");
-  //   Serial.print(WiFi.status());
-  //   if (--ConnectTimeout <= 0)
-  //   {
-  //     Serial.println();
-  //     Serial.println("WiFi connect timeout");
-  //     return;
-  //   }
-  // }
-  // Serial.println();
-  // Serial.println("WiFi connected");
-
-  // // Print the IP address
-  // Serial.println(WiFi.localIP());
-
-  // setClock();
+  httpDisplay.init(115200, true, 2, false);
+  SPI.begin(PIN_EPD_SCK,
+            PIN_EPD_MISO,
+            PIN_EPD_MOSI,
+            PIN_EPD_CS);
 
   if ((httpDisplay.epd2.panel == GxEPD2::GDEW0154Z04) || (httpDisplay.epd2.panel == GxEPD2::ACeP565) || (httpDisplay.epd2.panel == GxEPD2::GDEY073D46) || false)
   {
@@ -267,6 +221,7 @@ void setupHttpRenderer()
   // drawBitmapsBuffered_test();
 
   Serial.println("GxEPD2_WiFi_Example done");
+  httpDisplay.powerOff();
 }
 
 uint16_t read16(WiFiClient &client)
