@@ -29,6 +29,7 @@
 #include "display_utils.h"
 #include "icons/icons_196x196.h"
 #include "renderer.h"
+#include "http_renderer.h"
 #ifndef USE_HTTP
 #include <WiFiClientSecure.h>
 #endif
@@ -118,8 +119,10 @@ void setup()
   // Serial.println("Clearing display...");
   // initDisplay();
   // display.powerOff();
-  Serial.println("Halting");
-  return;
+
+  // Serial.println("Halting");
+  // return;
+
   // esp_deep_sleep_start();
 
   // GET BATTERY VOLTAGE
@@ -228,6 +231,14 @@ void setup()
   }
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
+
+  initDisplay();
+
+  setupHttpRenderer();
+
+  display.powerOff();
+  beginDeepSleep(startTime, &timeInfo);
+  return;
 
   // MAKE API REQUESTS
 #ifdef USE_HTTP
