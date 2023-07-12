@@ -143,8 +143,8 @@ void setup()
   if (!timeConfigured)
   { // Failed To Fetch The Time
     Serial.println("Failed To Fetch The Time");
-    killWiFi();
-    beginDeepSleep(startTime, &timeInfo);
+    // killWiFi();
+    // beginDeepSleep(startTime, &timeInfo);
   }
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);

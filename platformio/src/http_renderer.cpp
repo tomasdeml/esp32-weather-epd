@@ -169,7 +169,7 @@ GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpD
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 
-const int httpPort = 80;
+const int httpPort = 8123;
 const int httpsPort = 443;
 
 const char *host_rawcontent = "raw.githubusercontent.com";
@@ -202,6 +202,12 @@ void setupHttpRenderer()
             PIN_EPD_MISO,
             PIN_EPD_MOSI,
             PIN_EPD_CS);
+
+  Serial.println("Clearing display...");
+  httpDisplay.clearScreen();
+  httpDisplay.powerOff();
+  Serial.println("Halting!");
+  return;
 
   if ((httpDisplay.epd2.panel == GxEPD2::GDEW0154Z04) || (httpDisplay.epd2.panel == GxEPD2::ACeP565) || (httpDisplay.epd2.panel == GxEPD2::GDEY073D46) || false)
   {
@@ -354,9 +360,10 @@ void drawBitmaps_other()
 {
   int16_t w2 = httpDisplay.width() / 2;
   int16_t h2 = httpDisplay.height() / 2;
-  showBitmapFrom_HTTP("www.packescape.com", "/img/assets/", "IniciMenusTV2.bmp", w2 - 200, h2 - 150, false);
-  delay(2000);
-  showBitmapFrom_HTTP("www.squix.org", "/blog/wunderground/", "chanceflurries.bmp", w2 - 50, h2 - 50, false);
+  // showBitmapFrom_HTTP("www.packescape.com", "/img/assets/", "IniciMenusTV2.bmp", w2 - 200, h2 - 150, false);
+  // delay(2000);
+  // http://pi.local:8123/local/sample.bmp
+  showBitmapFrom_HTTP("pi.local", "/local/", "sample.bmp", 0, 0, true);
   delay(2000);
   // showBitmapFrom_HTTPS(host_rawcontent, path_prenticedavid, "betty_1.bmp", fp_rawcontent, w2 - 100, h2 - 160);
   // delay(2000);
@@ -550,8 +557,13 @@ void showBitmapFrom_HTTP(const char *host, const char *path, const char *filenam
   if (!connection_ok)
     return;
   // Parse BMP header
-  if (read16(client) == 0x4D42) // BMP signature
+  uint16_t sig = read16(client);
+  Serial.print("BMP signature: ");
+  Serial.println(sig);
+  if (sig == 0x4D42) // BMP signature
   {
+    Serial.println("BMP signature matched");
+
     uint32_t fileSize = read32(client);
     uint32_t creatorBytes = read32(client);
     (void)creatorBytes;                    // unused
