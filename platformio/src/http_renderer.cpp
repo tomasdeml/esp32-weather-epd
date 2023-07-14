@@ -11,7 +11,6 @@
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 #include <GxEPD2_7C.h>
-#include <HTTPClient.h>
 #include "config.h"
 
 // NOTE: you may need to adapt or select for your wiring in the processor specific conditional compile sections below
@@ -178,7 +177,7 @@ const char *path_waveshare_py = "/waveshare/e-Paper/master/RaspberryPi_JetsonNan
 const char *fp_rawcontent = "8F 0E 79 24 71 C5 A7 D2 A7 46 76 30 C1 3C B7 2A 13 B0 01 B2"; // as of 29.7.2022
 
 // note that BMP bitmaps are drawn at physical position in physical orientation of the screen
-bool showBitmapFrom_HTTP(const char *host, const char *path, const char *filename, int16_t x, int16_t y, bool with_color = true);
+bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color = true);
 // void showBitmapFrom_HTTPS(const char *host, const char *path, const char *filename, const char *fingerprint, int16_t x, int16_t y, bool with_color = true,
 //                           const char *certificate = certificate_rawcontent);
 
@@ -203,7 +202,7 @@ void setupHttpRenderer()
   // {
   //   delay(5000);
   // }
-  showBitmapFrom_HTTP("pi.local:8080", "/", "ping", 0, 0, true);
+  showBitmapFrom_HTTP("pi.local", 8080, "/", "ping", 0, 0, true);
 
   Serial.println("GxEPD2_WiFi_Example done");
   httpDisplay.powerOff();
@@ -280,7 +279,7 @@ uint8_t mono_palette_buffer[max_palette_pixels / 8];  // palette buffer for dept
 uint8_t color_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 c/w
 uint16_t rgb_palette_buffer[max_palette_pixels];      // palette buffer for depth <= 8 for buffered graphics, needed for 7-color display
 
-bool showBitmapFrom_HTTP(const char *host, const char *path, const char *filename, int16_t x, int16_t y, bool with_color)
+bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color)
 {
   WiFiClient client;
   bool connection_ok = false;
@@ -289,27 +288,45 @@ bool showBitmapFrom_HTTP(const char *host, const char *path, const char *filenam
   uint32_t startTime = millis();
   if ((x >= httpDisplay.epd2.WIDTH) || (y >= httpDisplay.epd2.HEIGHT))
     return false;
-
   Serial.println();
-  Serial.println(String("Downloading http://") + host + path + filename);
-
-  HTTPClient http;
-  http.begin(String("http://") + host + path + filename);
-  int httpResponseCode = http.GET();
-  if (httpResponseCode > 0)
+  Serial.print("downloading file \"");
+  Serial.print(filename);
+  Serial.println("\"");
+  Serial.print("connecting to ");
+  Serial.println(host);
+  if (!client.connect(host, port))
   {
-    Serial.print("HTTP ");
-    Serial.println(httpResponseCode);
-    client = http.getStream();
-  }
-  else
-  {
-    Serial.print("Error code: ");
-    Serial.println(httpResponseCode);
-    Serial.println(":-(");
+    Serial.println("connection failed");
     return false;
   }
-
+  Serial.print("requesting URL: ");
+  Serial.println(String("http://") + host + path + filename);
+  client.print(String("GET ") + path + filename + " HTTP/1.1\r\n" +
+               "Host: " + host + "\r\n" +
+               "User-Agent: GxEPD2_WiFi_Example\r\n" +
+               "Connection: close\r\n\r\n");
+  Serial.println("request sent");
+  while (client.connected())
+  {
+    String line = client.readStringUntil('\n');
+    if (!connection_ok)
+    {
+      connection_ok = line.startsWith("HTTP/1.1 200 OK");
+      if (connection_ok)
+        Serial.println(line);
+      // if (!connection_ok) Serial.println(line);
+    }
+    if (!connection_ok)
+      Serial.println(line);
+    // Serial.println(line);
+    if (line == "\r")
+    {
+      Serial.println("headers received");
+      break;
+    }
+  }
+  if (!connection_ok)
+    return false;
   // Parse BMP header
   uint16_t sig = read16(client);
   Serial.print("BMP signature: ");
