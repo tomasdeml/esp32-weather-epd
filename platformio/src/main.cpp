@@ -21,6 +21,8 @@
 #include <Preferences.h>
 #include <time.h>
 #include <WiFi.h>
+#include <WiFiUdp.h>
+#include <Syslog.h>
 #include <Wire.h>
 
 #include "api_response.h"
@@ -42,6 +44,20 @@ static owm_resp_onecall_t owm_onecall;
 static owm_resp_air_pollution_t owm_air_pollution;
 
 Preferences prefs;
+
+// A UDP instance to let us send and receive packets over UDP
+WiFiUDP udpClient;
+
+// Syslog server connection info
+#define SYSLOG_SERVER "pi.local"
+#define SYSLOG_PORT 514
+
+// This device info
+#define DEVICE_HOSTNAME "esp32-frame"
+#define APP_NAME "esp32-frame"
+
+// Create a new syslog instance with LOG_KERN facility
+Syslog syslog(udpClient, SYSLOG_SERVER, SYSLOG_PORT, DEVICE_HOSTNAME, APP_NAME, LOG_KERN);
 
 /* Put esp32 into ultra low-power deep-sleep (<11μA).
  * Aligns wake time to the minute. Sleep times defined in config.cpp.
@@ -109,6 +125,25 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   esp_deep_sleep_start();
 } // end beginDeepSleep
 
+void sendSyslog()
+{
+  // Severity levels can be found in Syslog.h. They are same like in Linux
+  // syslog.
+  syslog.log(LOG_INFO, "Begin loop");
+
+  // Log message can be formated like with printf function.
+  syslog.logf(LOG_ERR, "This is error message no. %d", 1);
+  syslog.logf(LOG_INFO, "This is info message no. %d", 2);
+
+  // You can force set facility in pri parameter for this log message. More
+  // facilities in syslog.h or in Linux syslog documentation.
+  syslog.logf(LOG_DAEMON | LOG_INFO, "This is daemon info message no. %d",
+              3);
+
+  // F() macro is supported too
+  syslog.log(LOG_INFO, F("End loop"));
+}
+
 /* Program entry point.
  */
 void setup()
@@ -149,7 +184,8 @@ void setup()
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
 
-  setupHttpRenderer();
+  sendSyslog();
+  // setupHttpRenderer();
 
   // DEEP-SLEEP
   beginDeepSleep(startTime, &timeInfo);
