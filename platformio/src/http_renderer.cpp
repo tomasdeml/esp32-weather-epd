@@ -184,18 +184,12 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
 void setupHttpRenderer()
 {
   Serial.println();
-  Serial.println("GxEPD2_WiFi_Example");
-
-  // Serial.println("Clearing display...");
-  // httpDisplay.clearScreen();
-  // httpDisplay.powerOff();
-  // Serial.println("Halting!");
-  // return;
+  Serial.println("Starting HTTP renderer");
 
   showBitmapFrom_HTTP("pi.local", 8080, "/", "ping", 0, 0, true);
-
-  Serial.println("GxEPD2_WiFi_Example done");
   httpDisplay.powerOff();
+
+  Serial.println("Completed HTTP renderer");
 }
 
 uint16_t read16(WiFiClient &client)
@@ -299,16 +293,12 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
   while (client.connected())
   {
     String line = client.readStringUntil('\n');
+    Serial.println(line);
+
     if (!connection_ok)
     {
       connection_ok = line.startsWith("HTTP/1.1 200 OK");
-      if (connection_ok)
-        Serial.println(line);
-      // if (!connection_ok) Serial.println(line);
     }
-    if (!connection_ok)
-      Serial.println(line);
-    // Serial.println(line);
     if (line == "\r")
     {
       Serial.println("headers received");
@@ -328,7 +318,14 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
   uint16_t sig = read16(client);
   Serial.print("BMP signature: ");
   Serial.println(sig);
-  if (sig == 0x4D42) // BMP signature
+
+  if (sig == 0xC0FF)
+  {
+    Serial.println("Clearing display...");
+    httpDisplay.clearScreen();
+    valid = true
+  }
+  else if (sig == 0x4D42) // BMP signature
   {
     Serial.println("BMP signature matched");
 
@@ -538,10 +535,12 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
     }
   }
   client.stop();
+
   if (!valid)
   {
-    Serial.println("bitmap format not handled.");
+    Serial.println("Bitmap format not handled");
   }
+
   return valid;
 }
 
