@@ -169,12 +169,16 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
   while (client.connected())
   {
     String line = client.readStringUntil('\n');
-    Serial.println(line);
 
     if (!connection_ok)
     {
       connection_ok = line.startsWith("HTTP/1.1 200 OK");
+      if (connection_ok)
+        Serial.println(line);
     }
+    if (!connection_ok)
+      Serial.println(line);
+
     if (line == "\r")
     {
       Serial.println("headers received");
