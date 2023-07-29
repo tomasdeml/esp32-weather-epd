@@ -195,8 +195,6 @@ extern const uint8_t PIN_EPD_MOSI;
 extern const uint8_t PIN_BME_SDA;
 extern const uint8_t PIN_BME_SCL;
 extern const uint8_t BME_ADDRESS;
-extern const char *WIFI_SSID;
-extern const char *WIFI_PASSWORD;
 extern const String OWM_APIKEY;
 extern const String OWM_ENDPOINT;
 extern const String OWM_ONECALL_VERSION;

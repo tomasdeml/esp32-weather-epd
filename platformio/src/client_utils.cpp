@@ -36,6 +36,7 @@
 #include "aqi.h"
 #include "client_utils.h"
 #include "config.h"
+#include "pass.h"
 #include "display_utils.h"
 #include "renderer.h"
 #ifndef USE_HTTP

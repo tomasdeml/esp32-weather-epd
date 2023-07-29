@@ -186,22 +186,12 @@ void setupHttpRenderer()
   Serial.println();
   Serial.println("GxEPD2_WiFi_Example");
 
-  httpDisplay.init(115200, true, 2, false);
-  SPI.begin(PIN_EPD_SCK,
-            PIN_EPD_MISO,
-            PIN_EPD_MOSI,
-            PIN_EPD_CS);
-
   // Serial.println("Clearing display...");
   // httpDisplay.clearScreen();
   // httpDisplay.powerOff();
   // Serial.println("Halting!");
   // return;
 
-  // if (showBitmapFrom_HTTP("pi.local", 8123, "/local/", "sample.bmp", 0, 0, true))
-  // {
-  //   delay(5000);
-  // }
   showBitmapFrom_HTTP("pi.local", 8080, "/", "ping", 0, 0, true);
 
   Serial.println("GxEPD2_WiFi_Example done");
@@ -327,6 +317,13 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
   }
   if (!connection_ok)
     return false;
+
+  httpDisplay.init(115200, true, 2, false);
+  SPI.begin(PIN_EPD_SCK,
+            PIN_EPD_MISO,
+            PIN_EPD_MOSI,
+            PIN_EPD_CS);
+
   // Parse BMP header
   uint16_t sig = read16(client);
   Serial.print("BMP signature: ");

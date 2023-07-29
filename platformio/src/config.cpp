@@ -35,10 +35,6 @@ const uint8_t PIN_BME_SDA = 17;
 const uint8_t PIN_BME_SCL = 16;
 const uint8_t BME_ADDRESS = 0x76; // if sensor does not work, try 0x77
 
-// WIFI CREDENTIALS
-const char *WIFI_SSID = "";     // DO NOT PUSH !!! !!! !!! !!!
-const char *WIFI_PASSWORD = ""; // DO NOT PUSH !!! !!! !!! !!!
-
 // OPENWEATHERMAP API
 // OpenWeatherMap API key, https://openweathermap.org/
 const String OWM_APIKEY = ""; // DO NOT PUSH !!! !!! !!!
