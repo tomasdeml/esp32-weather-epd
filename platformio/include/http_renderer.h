@@ -18,6 +18,6 @@
 #ifndef __HTTP_RENDERER_H__
 #define __HTTP_RENDERER_H__
 
-void setupHttpRenderer();
+void setupHttpRenderer(Logger logger);
 
 #endif

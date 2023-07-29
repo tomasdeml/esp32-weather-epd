@@ -41,7 +41,6 @@
 
 // too large to allocate locally on stack
 static owm_resp_onecall_t owm_onecall;
-static owm_resp_air_pollution_t owm_air_pollution;
 
 Preferences prefs;
 
@@ -125,6 +124,13 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   esp_deep_sleep_start();
 } // end beginDeepSleep
 
+void writeToSyslog(const char *msg)
+{
+  Serial.println("Sending message to syslog...");
+  syslog.log(LOG_INFO, msg);
+  Serial.println("Syslog sent");
+}
+
 void sendSyslog()
 {
   // Severity levels can be found in Syslog.h. They are same like in Linux
@@ -185,7 +191,7 @@ void setup()
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
 
   sendSyslog();
-  // setupHttpRenderer();
+  setupHttpRenderer(writeToSyslog);
 
   // DEEP-SLEEP
   beginDeepSleep(startTime, &timeInfo);
