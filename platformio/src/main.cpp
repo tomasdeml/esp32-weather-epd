@@ -58,6 +58,25 @@ WiFiUDP udpClient;
 // Create a new syslog instance with LOG_KERN facility
 Syslog syslog(udpClient, SYSLOG_SERVER, SYSLOG_PORT, DEVICE_HOSTNAME, APP_NAME, LOG_KERN);
 
+void writeToSyslog(uint16_t priority, const char *message)
+{
+  Serial.println("Sending message to syslog...");
+  syslog.log(priority, message);
+  Serial.println("Syslog message sent");
+}
+
+void log(uint16_t priority, const char *message)
+{
+  Serial.println(message);
+  syslog.log(priority, message);
+}
+
+void log(uint16_t priority, const String &message)
+{
+  Serial.println(message);
+  syslog.log(priority, message);
+}
+
 /* Put esp32 into ultra low-power deep-sleep (<11μA).
  * Aligns wake time to the minute. Sleep times defined in config.cpp.
  */
@@ -65,8 +84,8 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
 {
   if (!getLocalTime(timeInfo))
   {
-    Serial.println("Failed to obtain time before deep-sleep, referencing "
-                   "older time.");
+    log(LOG_INFO, "Failed to obtain time before deep-sleep, referencing "
+                  "older time.");
   }
 
   uint64_t sleepDuration = 0;
@@ -118,35 +137,29 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   // add extra delay to compensate for esp32's with fast RTCs.
   sleepDuration += 10ULL;
 
+  log(LOG_INFO, "Awake for " + String((millis() - startTime) / 1000.0, 3) + "s");
+  log(LOG_INFO, "Deep-sleep for " + String(sleepDuration) + "s");
+
   esp_sleep_enable_timer_wakeup(sleepDuration * 1000000ULL);
-  Serial.println("Awake for " + String((millis() - startTime) / 1000.0, 3) + "s");
-  Serial.println("Deep-sleep for " + String(sleepDuration) + "s");
   esp_deep_sleep_start();
 } // end beginDeepSleep
-
-void writeToSyslog(const char *msg)
-{
-  Serial.println("Sending message to syslog...");
-  syslog.log(LOG_INFO, msg);
-  Serial.println("Syslog sent");
-}
 
 void sendSyslog()
 {
   // Severity levels can be found in Syslog.h. They are same like in Linux
   // syslog.
-  syslog.log(LOG_INFO, "Begin loop");
+  syslog.log(LOG_INFO, "Starting");
 
-  // Log message can be formated like with printf function.
+  // // Log message can be formated like with printf function.
   syslog.logf(LOG_ERR, "This is error message no. %d", 1);
   syslog.logf(LOG_INFO, "This is info message no. %d", 2);
 
-  // You can force set facility in pri parameter for this log message. More
-  // facilities in syslog.h or in Linux syslog documentation.
+  // // You can force set facility in pri parameter for this log message. More
+  // // facilities in syslog.h or in Linux syslog documentation.
   syslog.logf(LOG_DAEMON | LOG_INFO, "This is daemon info message no. %d",
               3);
 
-  // F() macro is supported too
+  // // F() macro is supported too
   syslog.log(LOG_INFO, F("End loop"));
 }
 
@@ -160,6 +173,8 @@ void setup()
   String statusStr = {};
   String tmpStr = {};
   tm timeInfo = {};
+
+  // TODO Draw Error Image
 
   // START WIFI
   int wifiRSSI = 0; // “Received Signal Strength Indicator"
@@ -183,15 +198,21 @@ void setup()
   timeConfigured = setupTime(&timeInfo);
   if (!timeConfigured)
   { // Failed To Fetch The Time
-    Serial.println("Failed To Fetch The Time");
+    log(LOG_ERR, "Failed To Fetch The Time");
     // killWiFi();
     // beginDeepSleep(startTime, &timeInfo);
   }
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
 
-  sendSyslog();
-  setupHttpRenderer(writeToSyslog);
+  if (timeInfo.tm_hour >= 6 && timeInfo.tm_hour <= 20)
+  {
+    setupHttpRenderer(writeToSyslog, log);
+  }
+  else
+  {
+    log(LOG_INFO, "It's bedtime, nothing to do");
+  }
 
   // DEEP-SLEEP
   beginDeepSleep(startTime, &timeInfo);

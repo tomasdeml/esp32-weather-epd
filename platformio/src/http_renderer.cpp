@@ -11,6 +11,7 @@
 #include <GxEPD2_BW.h>
 #include <GxEPD2_3C.h>
 #include <GxEPD2_7C.h>
+#include <Syslog.h>
 #include "config.h"
 
 // NOTE: you may need to adapt or select for your wiring in the processor specific conditional compile sections below
@@ -54,18 +55,19 @@ const char *path_waveshare_c = "/waveshare/e-Paper/master/RaspberryPi_JetsonNano
 const char *path_waveshare_py = "/waveshare/e-Paper/master/RaspberryPi_JetsonNano/python/pic/";
 const char *fp_rawcontent = "8F 0E 79 24 71 C5 A7 D2 A7 46 76 30 C1 3C B7 2A 13 B0 01 B2"; // as of 29.7.2022
 
-bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color = true);
+bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color = true);
 
-void setupHttpRenderer(Logger logger)
+void setupHttpRenderer(Logger syslogger, Logger log)
 {
-  Serial.println();
-  Serial.println("Starting HTTP renderer");
+  log(LOG_DEBUG, "Starting HTTP renderer");
 
-  httpDisplay.epd2.setLogger(logger);
-  showBitmapFrom_HTTP("pi.local", 8080, "/", "ping", 0, 0, true);
-  httpDisplay.powerOff();
+  httpDisplay.epd2.setLogger(syslogger);
+  if (!showBitmapFrom_HTTP(log, "pi.local", 8080, "/", "ping", 0, 0, true))
+  {
+    httpDisplay.powerOff();
+  }
 
-  Serial.println("Completed HTTP renderer");
+  log(LOG_DEBUG, "Completed HTTP renderer");
 }
 
 uint16_t read16(WiFiClient &client)
@@ -139,15 +141,17 @@ uint8_t mono_palette_buffer[max_palette_pixels / 8];  // palette buffer for dept
 uint8_t color_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 c/w
 uint16_t rgb_palette_buffer[max_palette_pixels];      // palette buffer for depth <= 8 for buffered graphics, needed for 7-color display
 
-bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color)
+bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color)
 {
   WiFiClient client;
   bool connection_ok = false;
   bool valid = false; // valid format to be handled
   bool flip = true;   // bitmap is stored bottom-to-top
+
   uint32_t startTime = millis();
   if ((x >= httpDisplay.epd2.WIDTH) || (y >= httpDisplay.epd2.HEIGHT))
     return false;
+
   Serial.println();
   Serial.print("downloading file \"");
   Serial.print(filename);
@@ -156,16 +160,17 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
   Serial.println(host);
   if (!client.connect(host, port))
   {
-    Serial.println("connection failed");
+    log(LOG_ERR, "connection failed");
     return false;
   }
+
   Serial.print("requesting URL: ");
   Serial.println(String("http://") + host + path + filename);
   client.print(String("GET ") + path + filename + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
                "User-Agent: GxEPD2_WiFi_Example\r\n" +
                "Connection: close\r\n\r\n");
-  Serial.println("request sent");
+  log(LOG_DEBUG, "request sent");
   while (client.connected())
   {
     String line = client.readStringUntil('\n');
@@ -181,7 +186,7 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
 
     if (line == "\r")
     {
-      Serial.println("headers received");
+      log(LOG_DEBUG, "headers received");
       break;
     }
   }
@@ -201,13 +206,14 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
 
   if (sig == 0xC0FF)
   {
-    Serial.println("Clearing display...");
+    log(LOG_INFO, "Clearing display...");
     httpDisplay.clearScreen();
+    httpDisplay.powerOff();
     valid = true;
   }
   else if (sig == 0x4D42) // BMP signature
   {
-    Serial.println("BMP signature matched");
+    log(LOG_INFO, "BMP signature matched");
 
     uint32_t fileSize = read32(client);
     uint32_t creatorBytes = read32(client);
@@ -408,7 +414,7 @@ bool showBitmapFrom_HTTP(const char *host, int port, const char *path, const cha
         Serial.print("downloaded in ");
         Serial.print(millis() - startTime);
         Serial.println(" ms");
-        httpDisplay.refresh();
+        httpDisplay.refresh(false);
       }
       Serial.print("bytes read ");
       Serial.println(bytes_read);

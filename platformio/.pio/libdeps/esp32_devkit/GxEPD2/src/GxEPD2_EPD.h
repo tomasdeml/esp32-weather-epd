@@ -20,7 +20,7 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 //#pragma GCC diagnostic ignored "-Wsign-compare"
 
-typedef void (*Logger)(const char*);
+typedef void (*Logger)(uint16_t priority, const char* message);
 
 class GxEPD2_EPD
 {
