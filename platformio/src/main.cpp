@@ -136,32 +136,18 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
 
   // add extra delay to compensate for esp32's with fast RTCs.
   sleepDuration += 10ULL;
+  // Add extra delay to compensate for the syslog delay below
+  sleepDuration += 5ULL;
 
   log(LOG_INFO, "Awake for " + String((millis() - startTime) / 1000.0, 3) + "s");
   log(LOG_INFO, "Deep-sleep for " + String(sleepDuration) + "s");
 
+  // Extra wait for pending syslog messages
+  delay(5000);
+
   esp_sleep_enable_timer_wakeup(sleepDuration * 1000000ULL);
   esp_deep_sleep_start();
 } // end beginDeepSleep
-
-void sendSyslog()
-{
-  // Severity levels can be found in Syslog.h. They are same like in Linux
-  // syslog.
-  syslog.log(LOG_INFO, "Starting");
-
-  // // Log message can be formated like with printf function.
-  syslog.logf(LOG_ERR, "This is error message no. %d", 1);
-  syslog.logf(LOG_INFO, "This is info message no. %d", 2);
-
-  // // You can force set facility in pri parameter for this log message. More
-  // // facilities in syslog.h or in Linux syslog documentation.
-  syslog.logf(LOG_DAEMON | LOG_INFO, "This is daemon info message no. %d",
-              3);
-
-  // // F() macro is supported too
-  syslog.log(LOG_INFO, F("End loop"));
-}
 
 /* Program entry point.
  */
@@ -205,13 +191,13 @@ void setup()
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
 
-  if (timeInfo.tm_hour >= 6 && timeInfo.tm_hour <= 20)
+  if (timeInfo.tm_hour >= 7 && timeInfo.tm_hour <= 20)
   {
     setupHttpRenderer(writeToSyslog, log);
   }
   else
   {
-    log(LOG_INFO, "It's bedtime, nothing to do");
+    log(LOG_INFO, "It's bedtime, skipping rendering");
   }
 
   // DEEP-SLEEP
