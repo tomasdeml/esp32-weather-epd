@@ -60,9 +60,7 @@ Syslog syslog(udpClient, SYSLOG_SERVER, SYSLOG_PORT, DEVICE_HOSTNAME, APP_NAME, 
 
 void writeToSyslog(uint16_t priority, const char *message)
 {
-  Serial.println("Sending message to syslog...");
   syslog.log(priority, message);
-  Serial.println("Syslog message sent");
 }
 
 void log(uint16_t priority, const char *message)
@@ -84,8 +82,8 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
 {
   if (!getLocalTime(timeInfo))
   {
-    log(LOG_INFO, "Failed to obtain time before deep-sleep, referencing "
-                  "older time.");
+    log(LOG_WARNING, "Failed to obtain time before deep-sleep, referencing "
+                     "older time.");
   }
 
   uint64_t sleepDuration = 0;
@@ -125,7 +123,7 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   }
   else
   { // align wake time to the hour
-    sleepDuration = extraHoursUntilWake * 3600ULL - (timeInfo->tm_min * 60ULL + timeInfo->tm_sec);
+    sleepDuration = extraHoursUntilWake * 3600ULL - ((timeInfo->tm_min - 5) * 60ULL + timeInfo->tm_sec);
   }
 
   // if we are within 2 minutes of the next alignment.
@@ -136,7 +134,7 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
 
   // add extra delay to compensate for esp32's with fast RTCs.
   sleepDuration += 10ULL;
-  // Add extra delay to compensate for the syslog delay below
+  // add extra delay to resume after the minute has started
   sleepDuration += 5ULL;
 
   log(LOG_INFO, "Awake for " + String((millis() - startTime) / 1000.0, 3) + "s");
@@ -184,21 +182,14 @@ void setup()
   timeConfigured = setupTime(&timeInfo);
   if (!timeConfigured)
   { // Failed To Fetch The Time
-    log(LOG_ERR, "Failed To Fetch The Time");
+    log(LOG_WARNING, "Failed To Fetch The Time");
     // killWiFi();
     // beginDeepSleep(startTime, &timeInfo);
   }
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
 
-  if (timeInfo.tm_hour >= 7 && timeInfo.tm_hour <= 20)
-  {
-    setupHttpRenderer(writeToSyslog, log);
-  }
-  else
-  {
-    log(LOG_INFO, "It's bedtime, skipping rendering");
-  }
+  setupHttpRenderer(writeToSyslog, log);
 
   // DEEP-SLEEP
   beginDeepSleep(startTime, &timeInfo);

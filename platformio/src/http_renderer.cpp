@@ -48,13 +48,6 @@ GxEPD2_DISPLAY_CLASS<GxEPD2_DRIVER_CLASS, MAX_HEIGHT(GxEPD2_DRIVER_CLASS)> httpD
 #include <WiFiClient.h>
 #include <WiFiClientSecure.h>
 
-const char *host_rawcontent = "raw.githubusercontent.com";
-const char *path_rawcontent = "/ZinggJM/GxEPD2/master/extras/bitmaps/";
-const char *path_prenticedavid = "/prenticedavid/MCUFRIEND_kbv/master/extras/bitmaps/";
-const char *path_waveshare_c = "/waveshare/e-Paper/master/RaspberryPi_JetsonNano/c/pic/";
-const char *path_waveshare_py = "/waveshare/e-Paper/master/RaspberryPi_JetsonNano/python/pic/";
-const char *fp_rawcontent = "8F 0E 79 24 71 C5 A7 D2 A7 46 76 30 C1 3C B7 2A 13 B0 01 B2"; // as of 29.7.2022
-
 bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color = true);
 
 void setupHttpRenderer(Logger syslogger, Logger log)
@@ -169,6 +162,8 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
   client.print(String("GET ") + path + filename + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
                "User-Agent: GxEPD2_WiFi_Example\r\n" +
+               "X-ESP32-BED-TIME: " + BED_TIME + "\r\n" +
+               "X-ESP32-WAKE-TIME: " + WAKE_TIME + "\r\n" +
                "Connection: close\r\n\r\n");
   log(LOG_DEBUG, "request sent");
   while (client.connected())
@@ -178,11 +173,11 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
     if (!connection_ok)
     {
       connection_ok = line.startsWith("HTTP/1.1 200 OK");
-      if (connection_ok)
-        Serial.println(line);
+      // if (connection_ok)
+      //   Serial.println(line);
     }
-    if (!connection_ok)
-      Serial.println(line);
+    // if (!connection_ok)
+    //   Serial.println(line);
 
     if (line == "\r")
     {
@@ -295,7 +290,10 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
         for (uint16_t row = 0; row < h; row++, rowPosition += rowSize) // for each line
         {
           if (!connection_ok || !(client.connected() || client.available()))
+          {
+            log(LOG_ERR, (String("read loop terminated at row ") + row).c_str());
             break;
+          }
           delay(1); // yield() to avoid WDT
           uint32_t in_remain = rowSize;
           uint32_t in_idx = 0;
@@ -309,7 +307,10 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
           {
             yield();
             if (!connection_ok || !(client.connected() || client.available()))
+            {
+              log(LOG_DEBUG, (String("read loop terminated at column ") + col + " of row " + row).c_str());
               break;
+            }
             // Time to read more pixel data?
             if (in_idx >= in_bytes) // ok, exact match for 24bit also (size IS multiple of 3)
             {
@@ -331,6 +332,7 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
               Serial.print("Error: got no more after ");
               Serial.print(bytes_read);
               Serial.println(" bytes read!");
+              log(LOG_ERR, (String("go no more after ") + bytes_read + " bytes read").c_str());
               break;
             }
             switch (depth)
@@ -428,24 +430,4 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
   }
 
   return valid;
-}
-
-// Set time via NTP, as required for x.509 validation
-void setClock()
-{
-  configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
-
-  Serial.print("Waiting for NTP time sync: ");
-  time_t now = time(nullptr);
-  while (now < 8 * 3600 * 2)
-  {
-    delay(500);
-    Serial.print(".");
-    now = time(nullptr);
-  }
-  Serial.println("");
-  struct tm timeinfo;
-  gmtime_r(&now, &timeinfo);
-  Serial.print("Current time: ");
-  Serial.print(asctime(&timeinfo));
 }
