@@ -148,7 +148,7 @@ void GxEPD2_EPD::_waitWhileBusy(const char* comment, uint16_t busy_time)
       if (micros() - start > _busy_timeout)
       {
         Serial.println("Busy Timeout!");
-        if (_logger) _logger(4 /* warn */, "Busy Timeout!");
+        if (_logger) _logger(7 /* DEBUG */, "Busy Timeout!");
         break;
       }
 #if defined(ESP8266) || defined(ESP32)

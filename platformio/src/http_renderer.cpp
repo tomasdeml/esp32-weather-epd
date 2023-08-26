@@ -137,6 +137,8 @@ uint16_t rgb_palette_buffer[max_palette_pixels];      // palette buffer for dept
 bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color)
 {
   WiFiClient client;
+  client.setTimeout(120);
+
   bool connection_ok = false;
   bool valid = false; // valid format to be handled
   bool flip = true;   // bitmap is stored bottom-to-top
@@ -308,7 +310,7 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
             yield();
             if (!connection_ok || !(client.connected() || client.available()))
             {
-              log(LOG_DEBUG, (String("read loop terminated at column ") + col + " of row " + row).c_str());
+              // log(LOG_DEBUG, (String("read loop terminated at column ") + col + " of row " + row).c_str());
               break;
             }
             // Time to read more pixel data?

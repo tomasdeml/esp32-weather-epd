@@ -39,40 +39,33 @@
 #include "cert.h"
 #endif
 
-// too large to allocate locally on stack
-static owm_resp_onecall_t owm_onecall;
-
-Preferences prefs;
-
-// A UDP instance to let us send and receive packets over UDP
-WiFiUDP udpClient;
-
-// Syslog server connection info
+// TODO Move to header file
 #define SYSLOG_SERVER "pi.local"
 #define SYSLOG_PORT 514
 
-// This device info
 #define DEVICE_HOSTNAME "esp32-frame"
 #define APP_NAME "esp32-frame"
 
-// Create a new syslog instance with LOG_KERN facility
-Syslog syslog(udpClient, SYSLOG_SERVER, SYSLOG_PORT, DEVICE_HOSTNAME, APP_NAME, LOG_KERN);
+Preferences _prefs;
+
+WiFiUDP _udpClient;
+Syslog _syslog(_udpClient, SYSLOG_SERVER, SYSLOG_PORT, DEVICE_HOSTNAME, APP_NAME, LOG_KERN);
 
 void writeToSyslog(uint16_t priority, const char *message)
 {
-  syslog.log(priority, message);
+  _syslog.log(priority, message);
 }
 
 void log(uint16_t priority, const char *message)
 {
   Serial.println(message);
-  syslog.log(priority, message);
+  _syslog.log(priority, message);
 }
 
 void log(uint16_t priority, const String &message)
 {
   Serial.println(message);
-  syslog.log(priority, message);
+  _syslog.log(priority, message);
 }
 
 /* Put esp32 into ultra low-power deep-sleep (<11μA).
@@ -147,6 +140,39 @@ void beginDeepSleep(unsigned long &startTime, tm *timeInfo)
   esp_deep_sleep_start();
 } // end beginDeepSleep
 
+void watchForTimeout(void *parameter)
+{
+  WiFiUDP udpClient;
+  Syslog syslog(udpClient, SYSLOG_SERVER, SYSLOG_PORT, DEVICE_HOSTNAME, APP_NAME, LOG_KERN);
+
+  // Serial.println("Timeout task started");
+  syslog.log(LOG_DEBUG, "Timeout watch started");
+  delay(120 * 1000);
+
+  // Serial.println("Timeout - going into a 5 min deep sleep to protect the display");
+  syslog.log(LOG_CRIT, "Timeout - going into a 5 min deep sleep to protect the display");
+
+  // Wait for syslog messages
+  delay(5 * 1000);
+
+  esp_sleep_enable_timer_wakeup(5 * 60 * 1000000ULL);
+  esp_deep_sleep_start();
+
+  // vTaskDelete(NULL);
+}
+
+void startTimeoutTask()
+{
+  xTaskCreatePinnedToCore(
+      watchForTimeout,
+      "Timeout Watch",
+      2048, // Stack size, review if the task function changes
+      NULL,
+      2, // Higher priority than for setup()
+      NULL,
+      1 - xPortGetCoreID()); // Different core than for setup()
+}
+
 /* Program entry point.
  */
 void setup()
@@ -159,8 +185,9 @@ void setup()
   tm timeInfo = {};
 
   // TODO Draw Error Image
+  // TODO Cleanup dependecies
+  // TODO Remove unused code and images
 
-  // START WIFI
   int wifiRSSI = 0; // “Received Signal Strength Indicator"
   wl_status_t wifiStatus = startWiFi(wifiRSSI);
   if (wifiStatus != WL_CONNECTED)
@@ -177,7 +204,6 @@ void setup()
     beginDeepSleep(startTime, &timeInfo);
   }
 
-  // FETCH TIME
   bool timeConfigured = false;
   timeConfigured = setupTime(&timeInfo);
   if (!timeConfigured)
@@ -189,6 +215,7 @@ void setup()
   String refreshTimeStr;
   getRefreshTimeStr(refreshTimeStr, timeConfigured, &timeInfo);
 
+  startTimeoutTask();
   setupHttpRenderer(writeToSyslog, log);
 
   // DEEP-SLEEP
