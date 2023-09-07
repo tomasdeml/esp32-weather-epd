@@ -40,7 +40,7 @@
 #endif
 
 // TODO Move to header file
-#define SYSLOG_SERVER "pi.local"
+#define SYSLOG_SERVER "10.11.1.2"
 #define SYSLOG_PORT 514
 
 #define DEVICE_HOSTNAME "esp32-frame"

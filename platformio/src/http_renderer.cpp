@@ -55,8 +55,9 @@ void setupHttpRenderer(Logger syslogger, Logger log)
   log(LOG_DEBUG, "Starting HTTP renderer");
 
   httpDisplay.epd2.setLogger(syslogger);
-  if (!showBitmapFrom_HTTP(log, "pi.local", 8080, "/", "ping", 0, 0, true))
+  if (!showBitmapFrom_HTTP(log, "10.11.1.2", 8080, "/", "ping", 0, 0, true))
   {
+    // TODO Only if powered on
     httpDisplay.powerOff();
   }
 
