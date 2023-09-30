@@ -105,22 +105,18 @@ uint32_t skip(WiFiClient &client, int32_t bytes)
 
 uint32_t read8n(WiFiClient &client, uint8_t *buffer, int32_t bytes)
 {
-  int32_t remain = bytes;
-  uint32_t start = millis();
-  while ((client.connected() || client.available()) && (remain > 0))
+  // uint32_t start = millis();
+  int32_t read = client.read(buffer, bytes);
+  if (read != bytes)
   {
-    if (client.available())
-    {
-      int16_t v = client.read();
-      *buffer++ = uint8_t(v);
-      remain--;
-    }
-    else
-      delay(1);
-    if (millis() - start > 2000)
-      break; // don't hang forever
+    delay(1);
+    bool connected = client.connected();
+    bool avaialble = client.available();
+    Serial.printf("read = %d, conn = %d, avail = %d\n", read, connected, avaialble);
   }
-  return bytes - remain;
+  // Serial.printf("read of %d/%d bytes took %3lu ms\n", read, bytes, (millis() - start));
+
+  return read > 0 ? read : 0;
 }
 
 static const uint16_t input_buffer_pixels = 800; // may affect performance
@@ -134,6 +130,20 @@ uint8_t output_row_color_buffer[max_row_width / 8];   // buffer for at least one
 uint8_t mono_palette_buffer[max_palette_pixels / 8];  // palette buffer for depth <= 8 b/w
 uint8_t color_palette_buffer[max_palette_pixels / 8]; // palette buffer for depth <= 8 c/w
 uint16_t rgb_palette_buffer[max_palette_pixels];      // palette buffer for depth <= 8 for buffered graphics, needed for 7-color display
+
+void serialPrint(const char *message)
+{
+  unsigned long currentMicros = micros();
+  unsigned long seconds = currentMicros / 1000000;
+  unsigned long milliseconds = (currentMicros % 1000000) / 1000;
+
+  char timestamp[10];
+
+  snprintf(timestamp, sizeof(timestamp), "%02lu.%03lu",
+           seconds, milliseconds);
+
+  Serial.printf("[%s] %s", timestamp, message);
+}
 
 bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *path, const char *filename, int16_t x, int16_t y, bool with_color)
 {
@@ -160,7 +170,7 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
     return false;
   }
 
-  Serial.print("requesting URL: ");
+  serialPrint("requesting URL: ");
   Serial.println(String("http://") + host + path + filename);
   client.print(String("GET ") + path + filename + " HTTP/1.1\r\n" +
                "Host: " + host + "\r\n" +
@@ -184,6 +194,7 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
 
     if (line == "\r")
     {
+      serialPrint("header received\n");
       log(LOG_DEBUG, "headers received");
       break;
     }
@@ -191,11 +202,13 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
   if (!connection_ok)
     return false;
 
+  serialPrint("init\n");
   httpDisplay.init(115200, true, 2, false);
   SPI.begin(PIN_EPD_SCK,
             PIN_EPD_MISO,
             PIN_EPD_MOSI,
             PIN_EPD_CS);
+  serialPrint("init completed\n");
 
   // Parse BMP header
   uint16_t sig = read16(client);
@@ -211,6 +224,7 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
   }
   else if (sig == 0x4D42) // BMP signature
   {
+    serialPrint("BMP signature matched\n");
     log(LOG_INFO, "BMP signature matched");
 
     uint32_t fileSize = read32(client);
@@ -286,7 +300,9 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
             color_palette_buffer[pn / 8] |= colored << pn % 8;
           }
         }
+        serialPrint("pallete read\n");
         httpDisplay.clearScreen();
+        serialPrint("starting rendering\n");
         uint32_t rowPosition = flip ? imageOffset + (height - h) * rowSize : imageOffset;
         // Serial.print("skip "); Serial.println(rowPosition - bytes_read);
         bytes_read += skip(client, rowPosition - bytes_read);
@@ -298,6 +314,7 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
             break;
           }
           delay(1); // yield() to avoid WDT
+          // serialPrint("reading row data\n");
           uint32_t in_remain = rowSize;
           uint32_t in_idx = 0;
           uint32_t in_bytes = 0;
@@ -309,6 +326,8 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
           for (uint16_t col = 0; col < w; col++) // for each pixel
           {
             yield();
+            // SLOW DOWN HERE WHEN CALLING INTO CLIENT
+            // But without it read8n() fails to read the whole buffer and available() becomes 0
             if (!connection_ok || !(client.connected() || client.available()))
             {
               // log(LOG_DEBUG, (String("read loop terminated at column ") + col + " of row " + row).c_str());
@@ -414,14 +433,16 @@ bool showBitmapFrom_HTTP(Logger log, const char *host, int port, const char *pat
             }
           } // end pixel
           int16_t yrow = y + (flip ? h - row - 1 : row);
+          // serialPrint("row processed "); Serial.println(row);
           httpDisplay.writeImage(output_row_mono_buffer, output_row_color_buffer, x, yrow, w, 1);
+          // serialPrint("row written\n");
         } // end line
-        Serial.print("downloaded in ");
+        serialPrint("downloaded in ");
         Serial.print(millis() - startTime);
         Serial.println(" ms");
         httpDisplay.refresh(false);
       }
-      Serial.print("bytes read ");
+      serialPrint("bytes read ");
       Serial.println(bytes_read);
     }
   }
