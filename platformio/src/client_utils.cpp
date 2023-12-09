@@ -28,16 +28,12 @@
 
 // additional libraries
 #include <Adafruit_BusIO_Register.h>
-#include <ArduinoJson.h>
 
 // header files
 #include "_locale.h"
-#include "api_response.h"
-#include "aqi.h"
 #include "client_utils.h"
 #include "config.h"
 #include "pass.h"
-#include "display_utils.h"
 #include "renderer.h"
 #ifndef USE_HTTP
 #include <WiFiClientSecure.h>

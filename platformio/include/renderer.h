@@ -21,10 +21,9 @@
 #include <vector>
 #include <Arduino.h>
 #include <time.h>
-#include "api_response.h"
 #include "config.h"
 
-#define DISP_WIDTH  800
+#define DISP_WIDTH 800
 #define DISP_HEIGHT 480
 
 #ifdef DISP_BW

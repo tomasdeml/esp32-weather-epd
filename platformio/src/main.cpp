@@ -16,8 +16,6 @@
  */
 
 #include <Arduino.h>
-#include <Adafruit_BME280.h>
-#include <Adafruit_Sensor.h>
 #include <Preferences.h>
 #include <time.h>
 #include <WiFi.h>
@@ -25,11 +23,10 @@
 #include <Syslog.h>
 #include <Wire.h>
 
-#include "api_response.h"
 #include "client_utils.h"
+#include "_locale.h"
+#include "_strftime.h"
 #include "config.h"
-#include "display_utils.h"
-#include "icons/icons_196x196.h"
 #include "renderer.h"
 #include "http_renderer.h"
 #ifndef USE_HTTP
@@ -172,6 +169,23 @@ void startTimeoutTask()
       NULL,
       1 - xPortGetCoreID()); // Different core than for setup()
 }
+
+void getRefreshTimeStr(String &s, bool timeSuccess, tm *timeInfo)
+{
+  if (timeSuccess == false)
+  {
+    s = TXT_UNKNOWN;
+    return;
+  }
+
+  char buf[48] = {};
+  _strftime(buf, sizeof(buf), REFRESH_TIME_FORMAT, timeInfo);
+  s = buf;
+
+  // remove double spaces.
+  s.replace("  ", " ");
+  return;
+} // end getRefreshTimeStr
 
 /* Program entry point.
  */
